@@ -1,0 +1,15 @@
+{
+    "short_name": "Logger",
+    "name": "Property Data Logger",
+    "icons": [
+        {
+            "src": "icon/path.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "start_url": "/index.html",
+    "display": "minimal-ui",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}

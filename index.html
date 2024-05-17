@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Estate Professional Tracker</title>
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 60px; /* Add extra bottom padding to make space for the buttons */
+      background-color: #D3D3D3;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      position: relative; /* For positioning the buttons */
+    }
+
+    .bottom-buttons {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .bottom-buttons button {
+      margin-right: 10px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>Real Estate Professional Tracker</h1>
+    </header>
+
+    <div class="button-group">
+      <button id="log-time-btn" onclick="window.location.href='log-time.html'">Log Project Time</button>
+      <button id="show-log-btn" onclick="window.location.href='show-log.html'">Log Summary</button>
+      <button id="view-data-btn" onclick="window.location.href='view-data.html'">View Data</button>
+      <button id="edit-log-btn" onclick="window.location.href='edit-log.html'">Edit Data</button>
+    </div>
+
+    <div id="progress-container">
+      <label for="progress-bar">750 hour YTD Progress</label>
+      <progress id="progress-bar" value="0" max="100"></progress>
+    </div>
+
+    <!-- Container for showing and editing log data (hidden by default) -->
+    <div id="log-data" class="modal">
+      <!-- Raw data will be shown and edited here -->
+    </div>
+    <div id="dataList" class="data-list"></div>
+    <div id="raw-data" class="modal">
+      <!-- Place where the raw data will be displayed -->
+    </div>
+    <textarea id="editableRawData" class="editable-raw-data" style="display:none;" 
+          title="Enter raw data here" placeholder="Type your raw data here..."></textarea>
+
+    <div class="bottom-buttons">
+      <button onclick="window.location.href='about.html'">About</button>
+      <button onclick="window.location.href='help.html'">Help</button>
+      <button id="submit-btn" class="submit-btn">Save data</button>
+    </div>
+  </div>
+
+  <script>
+    function downloadCSV(csv, filename) {
+      let csvFile;
+      let downloadLink;
+
+      // Create a CSV file
+      csvFile = new Blob([csv], { type: "text/csv" });
+
+      // Create a link to the file
+      downloadLink = document.createElement("a");
+
+      // Set the download attribute with the filename
+      downloadLink.download = filename;
+
+      // Create a link to the file
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+
+      // Hide the link
+      downloadLink.style.display = "none";
+
+      // Add the link to the DOM
+      document.body.appendChild(downloadLink);
+
+      // Click the link to download the file
+      downloadLink.click();
+
+      // Remove the link from the DOM
+      document.body.removeChild(downloadLink);
+    }
+
+    function exportTableToCSV(filename) {
+      const csvData = JSON.parse(localStorage.getItem('csvData'));
+      if (!csvData) {
+        alert('No data to download.');
+        return;
+      }
+
+      let csv = [];
+      let headers = Object.keys(csvData[0]);
+      csv.push(headers.join(","));
+
+      csvData.forEach(row => {
+        let values = headers.map(header => row[header]);
+        csv.push(values.join(","));
+      });
+
+      // Download the CSV file
+      downloadCSV(csv.join("\n"), filename);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Handle submit button click
+      document.getElementById('submit-btn').addEventListener('click', () => {
+        exportTableToCSV('log_data.csv');
+      });
+
+      // Initialize progress bar
+      function updateProgressBar() {
+        const progressBar = document.getElementById('progress-bar');
+        const maxHours = 750;
+        const storedDataString = localStorage.getItem('csvData');
+        let totalHoursWorked = 0;
+
+        if (storedDataString) {
+          const dataEntries = JSON.parse(storedDataString);
+          totalHoursWorked = dataEntries.reduce((sum, entry) => sum + (parseFloat(entry.hoursWorked) || 0), 0);
+        }
+
+        progressBar.value = (totalHoursWorked / maxHours) * 100;
+      }
+
+      updateProgressBar();
+    });
+  </script>
+</body>
+</html>
+

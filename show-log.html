@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show Log Data</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>Log Summary</h1>
+    </header>
+    
+    <ul id="dataList" class="data-list"></ul>
+    <button id="back-btn" class="back-btn">Back</button>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const dataListElement = document.getElementById('dataList');
+        const storedDataString = localStorage.getItem('csvData');
+        let totalDollarsSpent = 0;
+        let totalHoursWorked = 0;
+        let propertySums = {};
+
+        if (storedDataString) {
+          const dataEntries = JSON.parse(storedDataString);
+
+          dataEntries.forEach(entry => {
+            const dollarAmount = parseFloat(entry.dollarAmount) || 0;
+            const hoursWorked = parseFloat(entry.hoursWorked) || 0;
+
+            totalDollarsSpent += dollarAmount;
+            totalHoursWorked += hoursWorked;
+
+            if (!propertySums[entry.address]) {
+              propertySums[entry.address] = { totalDollars: 0, totalHours: 0 };
+            }
+
+            propertySums[entry.address].totalDollars += dollarAmount;
+            propertySums[entry.address].totalHours += hoursWorked;
+          });
+
+          for (const [address, sums] of Object.entries(propertySums)) {
+            const addressItem = document.createElement('li');
+            addressItem.classList.add('address-item');
+            addressItem.textContent = address;  // Remove "Address: " prefix
+            dataListElement.appendChild(addressItem);
+
+            const summaryItem = document.createElement('li');
+            summaryItem.classList.add('summary-item');
+            summaryItem.textContent = `Total Dollars Spent: ${sums.totalDollars.toFixed(2)}, Total Hours Worked: ${sums.totalHours.toFixed(2)}`;
+            dataListElement.appendChild(summaryItem);
+          }
+
+          const totalItem = document.createElement('li');
+          totalItem.classList.add('total-item');
+          totalItem.textContent = `Total - Dollars Spent: ${totalDollarsSpent.toFixed(2)}, Hours Worked: ${totalHoursWorked.toFixed(2)}`;
+          dataListElement.appendChild(totalItem);
+        } else {
+          console.log("No data found in Local Storage.");
+          dataListElement.textContent = "No data found.";
+        }
+
+        // Back button functionality
+        document.getElementById('back-btn').addEventListener('click', () => {
+          window.location.href = 'index.html';
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>
+

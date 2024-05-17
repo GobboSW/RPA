@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Log Data</title>
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    .editable-raw-data {
+      width: 100%;
+      height: 400px; /* Adjust height as needed */
+      resize: vertical; /* Allow vertical resizing */
+    }
+    .back-btn {
+      margin-bottom: 10px; /* Add some space below the back button */
+    }
+    .submit-btn {
+      margin-top: 10px; /* Add some space above the save button */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>View Data</h1>
+    </header>
+
+    
+    <textarea id="editableRawData" class="editable-raw-data" placeholder="Type your raw data here..."></textarea>
+    <button id="back-btn" class="back-btn">Back</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const editableRawDataArea = document.getElementById('editableRawData');
+      const rawDataString = localStorage.getItem('csvData');
+      
+      if (rawDataString) {
+        const formattedData = JSON.stringify(JSON.parse(rawDataString), null, 2);
+        editableRawDataArea.value = formattedData;
+      } else {
+        editableRawDataArea.value = 'No raw data found.';
+      }
+
+  
+
+      // Back button functionality
+      document.getElementById('back-btn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Log Data</title>
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #D3D3D3;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      overflow: hidden; /* Hide overflow for container */
+      position: relative; /* Position relative for positioning the buttons */
+    }
+    .table-container {
+      overflow: auto; /* Allow scrolling inside table container */
+      max-height: 560px; /* Adjust height to consider container padding */
+    }
+    .app-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      table-layout: auto;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      max-width: 200px; /* Set a max-width for better layout control */
+      box-sizing: border-box;
+      padding: 8px;
+      margin: 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .back-btn, .submit-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #28a745;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 10px;
+      text-decoration: none;
+    }
+    .back-btn {
+      background-color: #007bff;
+      margin-right: 10px;
+    }
+    .back-btn:hover, .submit-btn:hover {
+      background-color: #0056b3;
+    }
+    .submit-btn:hover {
+      background-color: #218838;
+    }
+    .clear-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #dc3545;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    .clear-btn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>Edit Log Data</h1>
+    </header>
+
+    <div class="table-container">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Property Address</th>
+            <th>Description of Work</th>
+            <th>Hours Worked</th>
+            <th>Dollars Amount</th>
+            <th>Receipts</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be dynamically generated -->
+        </tbody>
+      </table>
+    </div>
+    <button id="save-raw-data" class="submit-btn">Save<br>Data</button>
+    <button id="clear-data" class="clear-btn">Clear<br>Data</button>
+    <a href="index.html" id="back-btn" class="back-btn">Back</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tableBody = document.getElementById('data-table').querySelector('tbody');
+      const rawDataString = localStorage.getItem('csvData');
+
+      if (rawDataString) {
+        const dataEntries = JSON.parse(rawDataString);
+        dataEntries.forEach((entry, index) => {
+          const row = document.createElement('tr');
+
+          Object.keys(entry).forEach(key => {
+            const cell = document.createElement('td');
+            const input = document.createElement('input');
+            
+            if (key === 'hoursWorked' || key === 'dollarsAmount') {
+              input.type = 'number';
+            } else {
+              input.type = 'text';
+            }
+
+            input.value = entry[key];
+            input.dataset.index = index;
+            input.dataset.key = key;
+            cell.appendChild(input);
+            row.appendChild(cell);
+          });
+
+          tableBody.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.textContent = 'No raw data found.';
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+      }
+
+      document.getElementById('save-raw-data').addEventListener('click', () => {
+        const inputs = tableBody.querySelectorAll('input');
+        const updatedData = [];
+
+        inputs.forEach(input => {
+          const index = input.dataset.index;
+          const key = input.dataset.key;
+          if (!updatedData[index]) {
+            updatedData[index] = {};
+          }
+          updatedData[index][key] = input.value;
+        });
+
+        localStorage.setItem('csvData', JSON.stringify(updatedData));
+        alert('Data saved successfully.');
+      });
+
+      document.getElementById('clear-data').addEventListener('click', () => {
+        if (confirm('Warning! This will clear all data, do you wish to proceed?')) {
+          localStorage.removeItem('csvData');
+          alert('All data has been cleared.');
+          location.reload();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
