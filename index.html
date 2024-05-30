@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Real Estate Professional Tracker</title>
+  <link rel="manifest" href="/manifest.json">
   <link href="styles.css" rel="stylesheet">
   <style>
     .container {
@@ -57,13 +58,11 @@
     <div id="raw-data" class="modal">
       <!-- Place where the raw data will be displayed -->
     </div>
-    <textarea id="editableRawData" class="editable-raw-data" style="display:none;" 
-          title="Enter raw data here" placeholder="Type your raw data here..."></textarea>
+
 
     <div class="bottom-buttons">
       <button onclick="window.location.href='about.html'">About</button>
       <button onclick="window.location.href='help.html'">Help</button>
-      <button id="submit-btn" class="submit-btn">Save data</button>
     </div>
   </div>
 
@@ -118,11 +117,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Handle submit button click
-      document.getElementById('submit-btn').addEventListener('click', () => {
-        exportTableToCSV('log_data.csv');
-      });
-
       // Initialize progress bar
       function updateProgressBar() {
         const progressBar = document.getElementById('progress-bar');
@@ -143,4 +137,3 @@
   </script>
 </body>
 </html>
-

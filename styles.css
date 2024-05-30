@@ -167,5 +167,13 @@ body {
   font-size: 1.4em; /* 2 font sizes larger than address */
 }
 
+.centered-button {
+  margin-bottom: 15px;
+  display: block;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 
 /* Add any additional existing styles below */

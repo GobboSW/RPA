@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Log Data</title>
   <link href="styles.css" rel="stylesheet">
+  <script src="libs/papaparse.min.js"></script> <!-- Include local PapaParse library -->
   <style>
     .container {
       max-width: 1200px;
@@ -13,13 +14,13 @@
       background-color: #D3D3D3;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      box-sizing: border-box; /* Include padding and border in the element's total width and height */
-      overflow: hidden; /* Hide overflow for container */
-      position: relative; /* Position relative for positioning the buttons */
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
     }
     .table-container {
-      overflow: auto; /* Allow scrolling inside table container */
-      max-height: 560px; /* Adjust height to consider container padding */
+      overflow: auto;
+      max-height: 560px;
     }
     .app-header {
       text-align: center;
@@ -42,54 +43,59 @@
     th {
       background-color: #f2f2f2;
     }
-    input[type="text"], input[type="number"] {
+    input[type="text"], input[type="number"], input[type="file"] {
       width: 100%;
-      max-width: 200px; /* Set a max-width for better layout control */
+      max-width: 200px;
       box-sizing: border-box;
       padding: 8px;
       margin: 0;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .back-btn, .submit-btn {
+    .hidden-input {
+      display: none;
+    }
+    .button-group {
+      display: flex;
+      justify-content: space-around; /* Ensure buttons are evenly spaced */
+      align-items: left; /* Vertically left the buttons */
+      gap: 10px; /* Add space between buttons */
+      margin-top: 20px;
+    }
+    .button-group button, .button-group a {
       display: inline-block;
       padding: 10px 20px;
       font-size: 16px;
       color: #fff;
-      background-color: #28a745;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       text-align: center;
-      margin-bottom: 10px;
       text-decoration: none;
     }
     .back-btn {
       background-color: #007bff;
-      margin-right: 10px;
     }
-    .back-btn:hover, .submit-btn:hover {
+    .back-btn:hover {
       background-color: #0056b3;
+    }
+    .submit-btn {
+      background-color: #28a745;
     }
     .submit-btn:hover {
       background-color: #218838;
     }
     .clear-btn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      color: #fff;
       background-color: #dc3545;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
     }
     .clear-btn:hover {
       background-color: #c82333;
+    }
+    .upload-btn {
+      background-color: #ffc107;
+    }
+    .upload-btn:hover {
+      background-color: #e0a800;
     }
   </style>
 </head>
@@ -116,9 +122,14 @@
         </tbody>
       </table>
     </div>
-    <button id="save-raw-data" class="submit-btn">Save<br>Data</button>
-    <button id="clear-data" class="clear-btn">Clear<br>Data</button>
-    <a href="index.html" id="back-btn" class="back-btn">Back</a>
+    <div class="button-group">
+      <button id="save-raw-data" class="submit-btn">Save Data</button>
+      <a href="index.html" id="back-btn" class="back-btn">Back</a>
+      <button id="clear-data" class="clear-btn">Clear Data</button>
+      <button id="upload-btn" class="upload-btn">Upload Data</button>
+      <label for="file-input" class="hidden-input">Upload CSV File</label>
+      <input type="file" id="file-input" class="hidden-input" accept=".csv">
+    </div>
   </div>
 
   <script>
@@ -137,13 +148,18 @@
             
             if (key === 'hoursWorked' || key === 'dollarsAmount') {
               input.type = 'number';
+              input.autocomplete = 'off';
             } else {
               input.type = 'text';
+              input.autocomplete = 'on';
             }
 
+            input.id = `${key}-${index}`; // Adding unique ID
+            input.name = key; // Adding name attribute
             input.value = entry[key];
             input.dataset.index = index;
             input.dataset.key = key;
+            input.setAttribute('aria-label', key.replace(/([A-Z])/g, ' $1').toLowerCase());
             cell.appendChild(input);
             row.appendChild(cell);
           });
@@ -183,6 +199,83 @@
           location.reload();
         }
       });
+
+      document.getElementById('upload-btn').addEventListener('click', () => {
+        document.getElementById('file-input').click();
+      });
+
+      document.getElementById('file-input').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const text = e.target.result;
+            Papa.parse(text, {
+              header: true,
+              skipEmptyLines: true,
+              complete: function(results) {
+                localStorage.setItem('csvData', JSON.stringify(results.data));
+                alert('Data uploaded successfully.');
+                location.reload();
+              }
+            });
+          };
+          reader.readAsText(file);
+        }
+      });
+    });
+
+    function downloadCSV(csv, filename) {
+      let csvFile;
+      let downloadLink;
+
+      // Create a CSV file
+      csvFile = new Blob([csv], { type: "text/csv" });
+
+      // Create a link to the file
+      downloadLink = document.createElement("a");
+
+      // Set the download attribute with the filename
+      downloadLink.download = filename;
+
+      // Create a link to the file
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+
+      // Hide the link
+      downloadLink.style.display = "none";
+
+      // Add the link to the DOM
+      document.body.appendChild(downloadLink);
+
+      // Click the link to download the file
+      downloadLink.click();
+
+      // Remove the link from the DOM
+      document.body.removeChild(downloadLink);
+    }
+
+    function exportTableToCSV(filename) {
+      const csvData = JSON.parse(localStorage.getItem('csvData'));
+      if (!csvData) {
+        alert('No data to download.');
+        return;
+      }
+
+      let csv = [];
+      let headers = Object.keys(csvData[0]);
+      csv.push(headers.join(","));
+
+      csvData.forEach(row => {
+        let values = headers.map(header => `"${row[header]}"`);
+        csv.push(values.join(","));
+      });
+
+      // Download the CSV file
+      downloadCSV(csv.join("\n"), filename);
+    }
+
+    document.getElementById('save-raw-data').addEventListener('click', () => {
+      exportTableToCSV('log_data.csv');
     });
   </script>
 </body>
