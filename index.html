@@ -5,7 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Real Estate Professional Tracker</title>
   <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/MyIcon-192.png">
   <link href="styles.css" rel="stylesheet">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(error) {
+          console.log('ServiceWorker registration failed: ', error);
+        });
+      });
+    }
+
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      showInstallButton();
+    });
+
+    function showInstallButton() {
+      const installButton = document.createElement('button');
+      installButton.textContent = 'Install App';
+      installButton.style.position = 'fixed';
+      installButton.style.bottom = '20px';
+      installButton.style.right = '20px';
+      document.body.appendChild(installButton);
+
+      installButton.addEventListener('click', () => {
+        installButton.remove();
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+        });
+      });
+    }
+  </script>
   <style>
     .container {
       max-width: 1200px;
