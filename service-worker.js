@@ -5,11 +5,11 @@ self.addEventListener('install', (event) => {
         caches.open('static-v1').then(cache => {
             return cache.addAll([
                 '/',
-                '/index.html',
-                '/styles.css',
-                '/manifest.json',
-                '/MyIcon-192.png',
-                '/MyIcon-512.png'
+                './index.html',
+                './styles.css',
+                './manifest.json',
+                './MyIcon-192.png',
+                './MyIcon-512.png'
             ]);
         })
     );
