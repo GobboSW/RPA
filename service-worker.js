@@ -4,12 +4,19 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open('static-v1').then(cache => {
             return cache.addAll([
-                '/',
-                './index.html',
-                './styles.css',
-                './manifest.json',
-                './MyIcon-192.png',
-                './MyIcon-512.png'
+                './', // This caches the root URL (index.html)
+  './index.html',
+  './log-time.html',
+  './show-log.html',
+  './view-data.html',
+  './edit-log.html',
+  './about.html',
+  './help.html',
+  './manifest.json',
+  './styles.css',
+  './icons/MyIcon-192.png',
+  './icons/MyIcon-512.png',
+  './service-worker.js'
             ]);
         })
     );
