@@ -19,7 +19,7 @@ self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
 
   event.waitUntil(
-    caches.open(CCACHE_NAME)
+    caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Service Worker: Caching App Shell at install');
         return cache.addAll(urlsToCache);
@@ -81,4 +81,3 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
-
