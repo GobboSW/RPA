@@ -10,8 +10,8 @@ const urlsToCache = [
   './help.html',
   './manifest.json',
   './styles.css',
-  './icons/MyIcon-192.png',
-  './icons/MyIcon-512.png',
+  './MyIcon-192.png',
+  './MyIcon-512.png',
   './service-worker.js'
 ];
 
